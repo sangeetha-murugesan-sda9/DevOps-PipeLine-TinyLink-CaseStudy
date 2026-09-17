@@ -1,0 +1,13 @@
+{
+  "name": "tinylink",
+  "private": true,
+  "workspaces": [
+    "client",
+    "server"
+  ],
+  "scripts": {
+    "lint": "npm run lint --workspaces --if-present",
+    "test": "npm test --workspaces --if-present",
+    "build": "npm run build --workspace client"
+  }
+}

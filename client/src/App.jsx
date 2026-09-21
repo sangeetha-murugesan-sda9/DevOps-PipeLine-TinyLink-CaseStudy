@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import QRCode from "qrcode";
 
 function timeAgo(isoString) {
   const seconds = Math.floor((Date.now() - new Date(isoString)) / 1000);
@@ -13,10 +14,16 @@ function timeAgo(isoString) {
 
 export default function App() {
   const [url, setUrl] = useState("");
+  const [alias, setAlias] = useState("");
+  const [mode, setMode] = useState("shorten");
   const [links, setLinks] = useState([]);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
   const [copiedCode, setCopiedCode] = useState("");
+  const [lastCreated, setLastCreated] = useState(null);
+  const [qrDataUrl, setQrDataUrl] = useState("");
+
+  const domain = window.location.host;
 
   async function loadLinks() {
     const res = await fetch("/api/links");
@@ -31,18 +38,29 @@ export default function App() {
   async function handleSubmit(e) {
     e.preventDefault();
     setError("");
+    setQrDataUrl("");
+
     const res = await fetch("/api/links", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ url }),
+      body: JSON.stringify(alias ? { url, alias } : { url }),
     });
     if (!res.ok) {
       const body = await res.json().catch(() => ({}));
       setError(body.error || "Something went wrong");
       return;
     }
+
+    const created = await res.json();
+    setLastCreated(created);
     setUrl("");
+    setAlias("");
     loadLinks();
+
+    if (mode === "qr") {
+      const shortUrl = `${window.location.origin}/${created.code}`;
+      setQrDataUrl(await QRCode.toDataURL(shortUrl, { width: 160, margin: 1 }));
+    }
   }
 
   function copyLink(code) {
@@ -55,35 +73,91 @@ export default function App() {
 
   return (
     <div className="page">
-      <header className="brand">
-        <span className="brand-mark">TL</span>
-        <span className="brand-name">TinyLink</span>
+      <header className="hero">
+        <div className="brand">
+          <span className="brand-mark">TL</span>
+          <span className="brand-name">TinyLink</span>
+        </div>
+        <h1>URL Shortener &amp; QR Codes</h1>
+        <p className="subtitle">
+          Paste a long URL below to get a short, shareable link with an optional custom
+          alias plus a QR code generated right in your browser.
+        </p>
       </header>
 
-      <p className="subtitle">Paste a long URL, get a short one back.</p>
-
       <div className="card">
-        <form onSubmit={handleSubmit} className="form-row">
+        <div className="tabs">
+          <button className={mode === "shorten" ? "tab active" : "tab"} onClick={() => setMode("shorten")}>
+            Shorten a Link
+          </button>
+          <button className={mode === "qr" ? "tab active" : "tab"} onClick={() => setMode("qr")}>
+            Generate QR Code
+          </button>
+        </div>
+
+        <form onSubmit={handleSubmit}>
+          <label className="field-label" htmlFor="long-url">Long URL*</label>
           <input
+            id="long-url"
             type="url"
             required
             placeholder="https://example.com/a/very/long/path"
             value={url}
             onChange={(e) => setUrl(e.target.value)}
           />
-          <button type="submit">Shorten</button>
+
+          <div className="alias-row">
+            <div>
+              <span className="field-label">Domain</span>
+              <div className="domain-box">{domain}</div>
+            </div>
+            <span className="slash">/</span>
+            <div className="alias-field">
+              <label className="field-label" htmlFor="alias">Alias (optional)</label>
+              <input
+                id="alias"
+                type="text"
+                placeholder="my-link"
+                value={alias}
+                onChange={(e) => setAlias(e.target.value)}
+              />
+              <span className="hint">Must be at least 5 characters</span>
+            </div>
+          </div>
+
+          <button type="submit" className="submit">
+            {mode === "qr" ? "Generate QR Code" : "Shorten Link"}
+          </button>
         </form>
+
         {error && <p className="error">{error}</p>}
 
-        <div className="list-header">
-          <span>Your links</span>
-          {links.length > 0 && <span className="count">{links.length}</span>}
-        </div>
+        {lastCreated && (
+          <div className="result">
+            <div className="result-link">
+              <span>Your link is ready:</span>
+              <a className="code" href={`/${lastCreated.code}`}>
+                {window.location.origin}/{lastCreated.code}
+              </a>
+              <button className="copy" onClick={() => copyLink(lastCreated.code)}>
+                {copiedCode === lastCreated.code ? "Copied" : "Copy"}
+              </button>
+            </div>
+            {qrDataUrl && <img className="qr" src={qrDataUrl} alt={`QR code for ${lastCreated.code}`} />}
+          </div>
+        )}
 
+        <p className="fineprint">
+          Built as a DD2482 course project And the links are stored for demo purposes only.
+        </p>
+      </div>
+
+      <section className="recent">
+        <h2>Your Recent Links</h2>
         {loading ? (
           <p className="empty">Loading…</p>
         ) : links.length === 0 ? (
-          <p className="empty">No links yet — create your first one above.</p>
+          <p className="empty">No links yet in your history.</p>
         ) : (
           <ul className="links">
             {links.map((link) => (
@@ -102,7 +176,7 @@ export default function App() {
             ))}
           </ul>
         )}
-      </div>
+      </section>
     </div>
   );
 }

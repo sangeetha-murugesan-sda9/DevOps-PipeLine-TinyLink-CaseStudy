@@ -57,4 +57,37 @@ describe("GET /health", () => {
     const res = await request(app).get("/health");
     expect(res.status).toBe(200);
   });
+
+    it("accepts a custom alias", async () => {
+    const res = await request(app)
+      .post("/api/links")
+      .send({ url: "https://www.kth.se", alias: "kth-course" })
+      .set("Content-Type", "application/json");
+
+    expect(res.status).toBe(201);
+    expect(res.body.code).toBe("kth-course");
+  });
+
+  it("rejects an alias shorter than 5 characters", async () => {
+    const res = await request(app)
+      .post("/api/links")
+      .send({ url: "https://www.kth.se", alias: "abc" })
+      .set("Content-Type", "application/json");
+
+    expect(res.status).toBe(400);
+  });
+
+  it("rejects an alias that's already taken", async () => {
+    await request(app)
+      .post("/api/links")
+      .send({ url: "https://www.kth.se", alias: "taken-alias" })
+      .set("Content-Type", "application/json");
+
+    const res = await request(app)
+      .post("/api/links")
+      .send({ url: "https://www.kth.se/other", alias: "taken-alias" })
+      .set("Content-Type", "application/json");
+
+    expect(res.status).toBe(409);
+  });
 });

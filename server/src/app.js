@@ -10,13 +10,27 @@ function createApp() {
   app.get("/health", (_req, res) => res.sendStatus(200));
 
   app.post("/api/links", async (req, res) => {
-    const { url } = req.body || {};
+    const { url, alias } = req.body || {};
     if (!url || typeof url !== "string" || !/^https?:\/\//i.test(url)) {
       return res.status(400).json({ error: "url must be an absolute http(s) URL" });
     }
 
-    const code = generateCode();
-    await pool.query("INSERT INTO links (code, url) VALUES ($1, $2)", [code, url]);
+    let code = alias;
+    if (code !== undefined) {
+      if (typeof code !== "string" || !/^[a-zA-Z0-9_-]{5,30}$/.test(code)) {
+        return res.status(400).json({ error: "alias must be 5-30 characters (letters, numbers, - or _)" });
+      }
+    } else {
+      code = generateCode();
+    }
+
+    try {
+      await pool.query("INSERT INTO links (code, url) VALUES ($1, $2)", [code, url]);
+    } catch (err) {
+      if (err.code === "23505") return res.status(409).json({ error: "that alias is already taken" });
+      throw err;
+    }
+
     res.status(201).json({ code, url });
   });
 

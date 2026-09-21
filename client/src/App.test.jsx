@@ -28,7 +28,7 @@ describe("App", () => {
     render(<App />);
     const input = screen.getByPlaceholderText(/https:\/\/example.com/i);
     fireEvent.change(input, { target: { value: "https://kth.se" } });
-    fireEvent.click(screen.getByText("Shorten"));
+    fireEvent.click(screen.getByText("Shorten Link"));
     await waitFor(() => expect(global.fetch).toHaveBeenCalledWith(
       "/api/links",
       expect.objectContaining({ method: "POST" })

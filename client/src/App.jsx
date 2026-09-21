@@ -32,30 +32,36 @@ export default function App() {
   }
 
   return (
-    <main style={{ fontFamily: "system-ui, sans-serif", maxWidth: 560, margin: "40px auto", padding: "0 16px" }}>
+    <div className="page">
       <h1>TinyLink</h1>
-      <p>Paste a long URL, get a short one back.</p>
+      <p className="subtitle">Paste a long URL, get a short one back.</p>
 
-      <form onSubmit={handleSubmit} style={{ display: "flex", gap: 8 }}>
-        <input
-          type="url"
-          required
-          placeholder="https://example.com/a/very/long/path"
-          value={url}
-          onChange={(e) => setUrl(e.target.value)}
-          style={{ flex: 1, padding: 8 }}
-        />
-        <button type="submit">Shorten</button>
-      </form>
-      {error && <p style={{ color: "crimson" }}>{error}</p>}
+      <div className="card">
+        <form onSubmit={handleSubmit} className="form-row">
+          <input
+            type="url"
+            required
+            placeholder="https://example.com/a/very/long/path"
+            value={url}
+            onChange={(e) => setUrl(e.target.value)}
+          />
+          <button type="submit">Shorten</button>
+        </form>
+        {error && <p className="error">{error}</p>}
 
-      <ul style={{ marginTop: 24, paddingLeft: 0, listStyle: "none" }}>
-        {links.map((link) => (
-          <li key={link.code} style={{ padding: "8px 0", borderBottom: "1px solid #eee" }}>
-            <a href={`/${link.code}`}>/{link.code}</a> &rarr; {link.url}
-          </li>
-        ))}
-      </ul>
-    </main>
+        {links.length === 0 ? (
+          <p className="empty">No links yet — create your first one above.</p>
+        ) : (
+          <ul className="links">
+            {links.map((link) => (
+              <li key={link.code}>
+                <a className="code" href={`/${link.code}`}>/{link.code}</a>
+                <span className="original">{link.url}</span>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+    </div>
   );
 }

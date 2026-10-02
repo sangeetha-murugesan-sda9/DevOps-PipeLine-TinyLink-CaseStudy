@@ -1,7 +1,12 @@
-
 resource "neon_project" "tinylink" {
   name      = "tinylink"
   region_id = "aws-eu-central-1"
+}
+
+locals {
+  image_parts = split(":", var.image_ref)
+  image_repo  = local.image_parts[0]
+  image_tag   = local.image_parts[1]
 }
 
 resource "render_web_service" "tinylink" {
@@ -11,7 +16,8 @@ resource "render_web_service" "tinylink" {
 
   runtime_source = {
     image = {
-      image_url = "https://${var.image_ref}"
+      image_url = local.image_repo
+      tag       = local.image_tag
     }
   }
 

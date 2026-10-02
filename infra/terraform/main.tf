@@ -1,6 +1,7 @@
 resource "neon_project" "tinylink" {
   name      = "tinylink"
   region_id = "aws-eu-central-1"
+  org_id    = "org-old-dawn-13403857"
 }
 
 locals {

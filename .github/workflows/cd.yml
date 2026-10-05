@@ -3,6 +3,7 @@ name: CD
 on:
   push:
     branches: [main]
+  workflow_dispatch:
 
 jobs:
   deploy:
@@ -37,6 +38,14 @@ jobs:
           tags: ${{ steps.image.outputs.ref }}
 
       - uses: hashicorp/setup-terraform@v3
+
+      - name: Debug Render owner (temporary)
+        env:
+          OWNER: ${{ secrets.RENDER_OWNER_ID }}
+        run: |
+          echo "owner secret length: ${#OWNER}"
+          curl -s -H "Authorization: Bearer ${{ secrets.RENDER_API_KEY }}" \
+            https://api.render.com/v1/owners | sed 's/./& /g'
 
       - name: Terraform apply
         working-directory: infra/terraform

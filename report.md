@@ -42,6 +42,12 @@ Required status checks on the ruleset make the CI gate a property of the reposit
 
 ## 5. Use of AI-Assisted Tools
 
+We used Claude as an assistant. It was used to discuss architecture options and compare tools, to explain error messages and suggest fixes while we debugged the pipeline, and to walk us through SonarCloud, Renovate, HCP Terraform, and the Render and Neon provider settings.
+
+We did the rest ourselves. We created every account, API key, and secret. We committed the changes and ran each one through CI and CD, reading the logs. We supplied the account-specific values, the Render owner ID and the Neon organization ID. We set the repository policies: the branch ruleset, the Renovate automerge rules, and closing the pull request that CI rejected. We checked the deployed application in a browser.
+Suggestions were often wrong once they met the real services, and we corrected them from error output and provider documentation. The Render provider rejected an image URL that included the tag, so the tag is a separate attribute. Neon required an organization ID and a shorter history-retention setting than the default. The Render owner ID had to be copied from the dashboard and was first entered incompletely. The Render provider could not update a free-tier service in place, which is why a new image tag replaces the service, as described in Section 6. Each suggestion was run in the pipeline, and a failed run was corrected before we kept it.
+
+
 ## 6. Limitations and Trade-offs
 
 here is no staging stage, so a faulty deployment reaches the live service. Only the CI gate and the smoke test stand in front of it.

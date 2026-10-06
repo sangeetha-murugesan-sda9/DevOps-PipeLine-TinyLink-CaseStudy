@@ -6,7 +6,21 @@ This report documents a DevOps pipeline built around TinyLink, a small URL-short
 
 ## 2. Application
 
+TinyLink is a small URL shortener. An Express API stores links in PostgreSQL, creates a short code or accepts a chosen alias, and redirects that code to the original URL. A React frontend provides the form and a QR code for each link. A multi-stage Docker build compiles the React app to static files and copies them into the Express server, so one container serves both the UI and the API. The pipeline builds, tests, and deploys that container. The application is kept small so the workflow around it stays the subject of the project.
+
 ## 3. Architecture and How the Components Interact
+
+Figure 1 shows the flow from a pull request, through CI, to CD onto live infrastructure, with SonarCloud and Renovate feeding quality and dependency information back in.
+![Figure 1. TinyLink end-to-end DevOps architecture and pipeline flow.](image.png)
+
+CI (`ci.yml`) runs on every pull request to main and gates the merge. It lints the code, runs the tests against a real PostgreSQL 16 service container, runs a SonarCloud scan that must pass its quality gate, and builds the Docker image without pushing it. A ruleset on main requires a pull request and this check, so none of these steps can be skipped.
+
+CD (`cd.yml`) runs only after a merge to main. It builds the image and pushes it to GitHub Container Registry, tagged with the commit SHA. It then runs `terraform apply` with that tag, so Render runs the image built from that commit, reads the service URL from the Terraform output, and calls `GET /health` as a smoke test. A failing smoke test turns a broken rollout into a red run immediately.
+
+One Terraform stack declares a Neon PostgreSQL project and a Render web service running the container image from GHCR. Terraform state is kept remotely in HCP Terraform, because GitHub Actions runners are discarded after each run and cannot keep a local state file. API keys reach Terraform only as GitHub secrets passed as environment variables.
+
+SonarCloud performs static analysis (bugs, vulnerabilities, and code smells) on each change. Renovate opens pull requests for outdated npm packages, the Docker base image, GitHub Actions, and Terraform providers. Those pull requests go through the same CI gate as any human change. A Renovate pull request that upgraded jsdom to v30 failed the frontend tests and never reached main.
+
 
 ## 4. Design Decisions
 

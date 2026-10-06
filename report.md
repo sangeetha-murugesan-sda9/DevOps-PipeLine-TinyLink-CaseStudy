@@ -26,11 +26,19 @@ SonarCloud performs static analysis (bugs, vulnerabilities, and code smells) on 
 
 ### 4.1 SonarCloud over Self-Hosted SonarQube
 
+A self-hosted server would add a second piece of infrastructure to patch, back up, and secure. SonarCloud gives the same analysis and quality gate through one CI step and a token.
+
 ### 4.2 Renovate over Dependabot
+
+Both tools open update pull requests. A single `renovate.json` covers npm for the client and the server, the Dockerfile, GitHub Actions, and Terraform providers, and it states a policy: minor and patch updates for npm and GitHub Actions may automerge, while Dockerfile and Terraform updates stay open for review. Major updates stay on that review path as well. Large bumps, such as React 19, Express 5, and jsdom 30, can break the build or require a newer Node version, and we did not want those to merge unreviewed.
 
 ### 4.3 Render and Neon over a Paid Cloud Target
 
+Both have Terraform providers, so the infrastructure-as-code story is unchanged, and neither costs anything. We used Neon for the database because Render's own free Postgres expires after 30 days.
+
 ### 4.4 GitHub Actions and a Branch-Protected Main
+
+Required status checks on the ruleset make the CI gate a property of the repository. This became concrete when a teammate pushed directly to main, which is what prompted us to enable the rule.
 
 ## 5. Use of AI-Assisted Tools
 

@@ -44,4 +44,19 @@ Required status checks on the ruleset make the CI gate a property of the reposit
 
 ## 6. Limitations and Trade-offs
 
+here is no staging stage, so a faulty deployment reaches the live service. Only the CI gate and the smoke test stand in front of it.
+The Render provider cannot update a free-tier service in place, so a new image tag replaces the service. A deploy therefore causes a short outage and a new URL suffix. On a paid plan, an in-place update would avoid this.
+
+Both Terraform providers needed workarounds that their documentation did not mention, and their versions are pinned loosely, so behaviour can change between applies.
+Render sleeps after about 15 minutes without traffic and takes about a minute to answer the next request. Neon scales its compute to zero. The free-tier limits are on instance hours and storage, not on the number of deployments, and they do not delete the project.
+
+SonarCloud and Renovate cover code and dependency issues. Nothing in the pipeline scans for committed secrets or for vulnerabilities in the container image.
+The smoke test checks that `/health` answers. It does not check that creating and opening a link works.
+
+Major dependency updates still open pull requests, but they are not automerged. The build stays stable, and those upgrades wait until someone reviews them.
+SonarCloud, HCP Terraform, Render, and Neon are external services. We do not control their availability or their terms.
+
 ## 7. Conclusion
+
+TinyLink's functionality is minimal on purpose. The substance is the pipeline: pull requests are gated by lint, tests, and a quality gate; a merge builds an image from that commit and deploys it with Terraform; and every choice above has a stated alternative and a stated cost. The pipeline is running, and we can explain how each part works and where it falls short.
+

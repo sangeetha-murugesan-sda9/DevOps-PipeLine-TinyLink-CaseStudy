@@ -2,6 +2,8 @@
 
 TinyLink is a small URL shortener. It lets you create shorter links that redirect to the original URL. The API and React app run in separate development processes, while the database runs in Docker. All links are stored in PostgreSQL.
 
+The project report is in [report.md](report.md).
+
 ## Setup
 
 Before getting started, make sure Docker is running. Open a terminal in the project folder and start the database:

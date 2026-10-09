@@ -8,7 +8,7 @@ TinyLink is a small URL-shortening service: paste a long URL (optionally with a 
 - **Frontend:** React + Vite single-page app (`client/`)
 - **Database:** PostgreSQL
 - **Packaging:** one multi-stage Docker image. The React app is compiled in a build stage and Express serves the static files and the API from the same container.
-- **Live deployment:** Render web service backed by a Neon Postgres database. The current URL is printed in the `service_url` output of the latest **CD** run (Actions tab) and is shown in the Render dashboard. It changes on each deploy. The service is on a free tier, so the first request after 15 minutes of inactivity can take about a minute.
+- **Live deployment:** - **Live deployment:** Render web service backed by a Neon Postgres database. The current URL is shown as **Live URL** on the summary page of the latest **CD** run (Actions tab) and in the Render dashboard. It changes on every deployment, because Render's free tier cannot update a service in place, so each deploy replaces the service and gets a new address. The link at submission time is: https://<final-url>.onrender.com. The service is on a free tier, so the first request after 15 minutes of inactivity can take about a minute.
 
 ## Architecture
 
@@ -30,6 +30,8 @@ Runs on every pull request to `main` (and on pushes to `main`). It installs depe
 ### CD (`cd.yml`)
 
 Runs only after a merge to `main` (or manually through *Run workflow*). It builds the image, pushes it to GHCR tagged with the commit SHA, runs `terraform apply` so that the Render service runs exactly that image, reads the service URL from the Terraform output, and finally calls `GET /health` on the new deployment as a smoke test.
+
+CD runs are queued (`concurrency`), so two deployments never run at the same time. Pushes that change only `README.md`, `report.md` or `assets/` do not trigger CD, so documentation updates do not redeploy the app or change its URL. Each run prints the deployed URL and shows it as **Live URL** on the run's summary page.
 
 ### Infrastructure (`infra/terraform/`)
 
@@ -132,3 +134,4 @@ Limitations and trade-offs are described in Section 5 of the project report.
 ## AI-assisted tools
 
 The use of an AI assistant is documented in Section 4 of the project report.
+

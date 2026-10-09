@@ -73,7 +73,11 @@ The following screenshots document the main parts of the setup and the successfu
 
 These screenshots show the live configuration used to deploy TinyLink, verify the database layer, and confirm that the infrastructure state is consistent with the repository and the CI/CD workflow.
 
-## 7. Conclusion 
+## 7. Live Deployment
+
+The application is live at https://tinylink-ru43.onrender.com. The URL changes on each deployment because Render’s free tier replaces the service instead of updating it in place.
+
+## Conclusion 
 
 TinyLink's functionality is minimal on purpose. The substance is the pipeline: pull requests are gated by lint, tests and a quality gate; merges build one image and deploy it with Terraform; and every choice above has a stated alternative and a stated cost. The pipeline is running, and we can explain how each part works and where it falls short. 
 

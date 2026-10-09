@@ -8,7 +8,7 @@ TinyLink is a small URL-shortening service: paste a long URL (optionally with a 
 - **Frontend:** React + Vite single-page app (`client/`)
 - **Database:** PostgreSQL
 - **Packaging:** one multi-stage Docker image. The React app is compiled in a build stage and Express serves the static files and the API from the same container.
-- **Live deployment:** - **Live deployment:** Render web service backed by a Neon Postgres database. The current URL is shown as **Live URL** on the summary page of the latest **CD** run (Actions tab) and in the Render dashboard. It changes on every deployment, because Render's free tier cannot update a service in place, so each deploy replaces the service and gets a new address. The link at submission time is: https://<final-url>.onrender.com. The service is on a free tier, so the first request after 15 minutes of inactivity can take about a minute.
+- **Live deployment:** Render web service backed by a Neon Postgres database. The current URL is shown as **Live URL** on the summary page of the latest **CD** run (Actions tab) and in the Render dashboard. It changes on every deployment, because Render's free tier cannot update a service in place, so each deploy replaces the service and gets a new address. The link at submission time is: https://[https://tinylink-ru43.onrender.com](https://tinylink-ru43.onrender.com). The service is on a free tier, so the first request after 15 minutes of inactivity can take about a minute.
 
 ## Architecture
 

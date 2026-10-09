@@ -60,7 +60,11 @@ jobs:
         working-directory: infra/terraform
         env:
           TF_TOKEN_app_terraform_io: ${{ secrets.TF_API_TOKEN }}
-        run: echo "url=$(terraform output -raw service_url)" >> "$GITHUB_OUTPUT"
+        run: |
+          URL=$(terraform output -raw service_url)
+          echo "url=$URL" >> "$GITHUB_OUTPUT"
+          echo "Deployed URL: $URL"
+          echo "**Live URL:** $URL" >> "$GITHUB_STEP_SUMMARY"
 
       - name: Smoke test
         run: |

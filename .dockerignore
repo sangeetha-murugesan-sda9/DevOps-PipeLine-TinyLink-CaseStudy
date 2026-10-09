@@ -6,3 +6,7 @@ node_modules
 *.md
 .github
 infra
+.env
+**/.env
+*.log
+.DS_Store

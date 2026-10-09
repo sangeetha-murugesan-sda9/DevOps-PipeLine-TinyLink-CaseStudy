@@ -59,7 +59,21 @@ Manual major upgrades. Disabling major updates keeps the build stable but means 
 
 Third-party dependence. SonarCloud, HCP Terraform, Render and Neon are external services whose availability and terms we do not control.
 
-## 6. Conclusion 
+## 6. Visual evidence of the implemented pipeline
+
+The following screenshots document the main parts of the setup and the successful infrastructure state.
+
+![Figure 5. SonarCloud quality gate and code analysis summary.](assets/SonarCloud-TinyLink.png)
+
+![Figure 6. Terraform overview for the Render and Neon deployment stack.](assets/Terraform-TinyLink-Overview.png)
+
+![Figure 7. Neon database project configured for the application.](assets/Neon-DB.png)
+
+![Figure 8. Terraform workspace and current state overview.](assets/Terraform-TinyLink-WorkSpace.png)
+
+These screenshots show the live configuration used to deploy TinyLink, verify the database layer, and confirm that the infrastructure state is consistent with the repository and the CI/CD workflow.
+
+## 7. Conclusion 
 
 TinyLink's functionality is minimal on purpose. The substance is the pipeline: pull requests are gated by lint, tests and a quality gate; merges build one image and deploy it with Terraform; and every choice above has a stated alternative and a stated cost. The pipeline is running, and we can explain how each part works and where it falls short. 
 

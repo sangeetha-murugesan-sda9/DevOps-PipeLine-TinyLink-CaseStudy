@@ -4,11 +4,12 @@
 
 TinyLink is a small URL-shortening service: paste a long URL (optionally with a custom alias) and get a short link that redirects to it, plus a QR code for the link. It exists to give a complete DevOps pipeline something real to build, test, scan and deploy. The pipeline around the app is the subject of this repository.
 
+**Live app (at submission):** https://tinylink-ru43.onrender.com
+
 - **Backend:** Node.js / Express REST API (`server/`)
 - **Frontend:** React + Vite single-page app (`client/`)
 - **Database:** PostgreSQL
 - **Packaging:** one multi-stage Docker image. The React app is compiled in a build stage and Express serves the static files and the API from the same container.
-- **Live deployment:** Render web service backed by a Neon Postgres database. The current URL is shown as **Live URL** on the summary page of the latest **CD** run (Actions tab) and in the Render dashboard. It changes on every deployment, because Render's free tier cannot update a service in place, so each deploy replaces the service and gets a new address. The link at submission time is: https://[https://tinylink-ru43.onrender.com](https://tinylink-ru43.onrender.com). The service is on a free tier, so the first request after 15 minutes of inactivity can take about a minute.
 
 ## Architecture
 
@@ -50,6 +51,10 @@ State is stored remotely in HCP Terraform, so each CI run starts from the real s
 ### Dependency management (`renovate.json`)
 
 Renovate opens pull requests for npm packages (client and server), the Dockerfile base image, GitHub Actions and Terraform providers. Each one goes through the same CI gate as any other change. Minor and patch updates are eligible for automerge, and **major updates are disabled** on purpose, because they can contain breaking changes and are better reviewed by hand. For example, an early `jsdom` v30 PR failed CI and was closed.
+
+### Live deployment:
+
+Render web service backed by a Neon Postgres database. The current URL is shown as **Live URL** on the summary page of the latest **CD** run (Actions tab) and in the Render dashboard. It changes on every deployment, because Render's free tier cannot update a service in place, so each deploy replaces the service and gets a new address. The service is on a free tier, so the first request after 15 minutes of inactivity can take about a minute.
 
 ## Repository layout
 
